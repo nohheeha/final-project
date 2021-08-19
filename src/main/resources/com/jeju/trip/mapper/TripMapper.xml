@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.jeju.trip.mapper.TripMapper">
+	
+	<select id="TourList" resultType="com.jeju.trip.vo.TripVO">
+		<![CDATA[
+	SELECT TSEQ, TITLE, ADDRESS1, IMAGE1, LIKECNT FROM 
+	(SELECT TSEQ ,TITLE, ADDRESS1, IMAGE1, LIKECNT,
+	ROW_NUMBER() OVER(ORDER BY TSEQ DESC) AS RNUM
+	FROM TRIP WHERE CONTENTTYPEID=1 AND IMAGE1 IS NOT NULL ]]>
+		         	<include refid="search"></include>
+		         	<![CDATA[) TRIP
+	WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd} ORDER BY TSEQ DESC]]>
+	</select>
+	
+	<select id="LodgeList" resultType="com.jeju.trip.vo.TripVO">
+		<![CDATA[SELECT TSEQ, TITLE, ADDRESS1, IMAGE1, LIKECNT FROM 
+	(SELECT TSEQ ,TITLE, ADDRESS1, IMAGE1, LIKECNT,
+	ROW_NUMBER() OVER(ORDER BY TSEQ DESC) AS RNUM
+	FROM TRIP WHERE CONTENTTYPEID=2  AND IMAGE1 IS NOT NULL]]>
+		         	<include refid="search"></include>
+		         	<![CDATA[) TRIP
+	WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd} ORDER BY TSEQ DESC]]>
+	</select>
+	
+	<select id="ShopList" resultType="com.jeju.trip.vo.TripVO">
+		<![CDATA[SELECT TSEQ, TITLE, ADDRESS1, IMAGE1, LIKECNT FROM 
+	(SELECT TSEQ ,TITLE, ADDRESS1, IMAGE1, LIKECNT,
+	ROW_NUMBER() OVER(ORDER BY TSEQ DESC) AS RNUM
+	FROM TRIP WHERE CONTENTTYPEID=3 AND IMAGE1 IS NOT NULL ]]>
+		         	<include refid="search"></include>
+		         	<![CDATA[) TRIP
+	WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd} ORDER BY TSEQ DESC]]>
+	</select>
+	
+	<select id="FoodList" resultType="com.jeju.trip.vo.TripVO">
+		<![CDATA[SELECT TSEQ, TITLE, ADDRESS1, IMAGE1, LIKECNT FROM 
+	(SELECT TSEQ ,TITLE, ADDRESS1, IMAGE1, LIKECNT,
+	ROW_NUMBER() OVER(ORDER BY TSEQ DESC) AS RNUM
+	FROM TRIP WHERE CONTENTTYPEID=4 AND IMAGE1 IS NOT NULL ]]>
+		         	<include refid="search"></include>
+		         	<![CDATA[) TRIP
+	WHERE RNUM BETWEEN #{rowStart} AND #{rowEnd} ORDER BY TSEQ DESC]]>
+	</select>
+	
+	<select id="read" resultType="com.jeju.trip.vo.TripVO">
+		<![CDATA[select * from trip where tseq = #{tseq}]]>
+	</select>
+	
+	<select id="listCount" resultType="int">
+	<![CDATA[
+		SELECT COUNT(TSEQ)
+		  FROM TRIP
+		 WHERE 1=1]]>
+		 <include refid="search"></include>
+		<![CDATA[ AND TSEQ > 0
+	]]>
+	</select>
+	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND TITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND CONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (TITLE LIKE '%' || #{keyword} || '%') or (CONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+	
+	<update id="likeup">
+		<selectKey order="AFTER" keyProperty="likecnt" resultType="Long">
+			select likecnt from trip where tseq=#{tseq}
+		</selectKey>
+		update trip set
+		likecnt = likecnt+1
+		where tseq=#{tseq}
+	</update>
+	
+	<select id="triplist" resultType="com.jeju.trip.vo.TripVO">
+	<![CDATA[
+	select tseq, title, address1, image1, likecnt from (select tseq, title, address1, image1, likecnt from trip order by likecnt desc)]]> 
+	<![CDATA[
+	where rownum <= 3]]> 
+	</select>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.jeju.trip.mapper.ReplyMapper">
+
+	<insert id="insert">
+		insert into reply (rseq, qseq, id, content) 
+		values (r_seq.nextval, #{qseq}, #{id}, #{content})
+	</insert>
+	
+	<select id="read" resultType="com.jeju.trip.vo.ReplyVO">
+		select * from reply where rseq = #{rseq}
+	</select>
+	
+	<delete id="delete">
+		delete from reply where rseq = #{rseq}
+	</delete>
+	
+	<update id="update">
+		update reply set content = #{content} where rseq = #{rseq}
+	</update>
+	
+	<select id="getList" resultType="com.jeju.trip.vo.ReplyVO">
+		select * from reply where qseq = #{qseq} order by rseq asc
+	</select>
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.jeju.trip.mapper.MemberMapper">
+	
+	
+	
+	<insert id="register">
+	<![CDATA[
+		insert into member (id, password, name, email, gender, phone,auth,enabled) 
+		values (#{id}, #{password}, #{name}, #{email}, #{gender}, #{phone},#{auth},1)
+		]]>
+	</insert>
+	
+	<select id="login" resultType="com.jeju.trip.vo.MemberVO">
+		SELECT ID, PWD, NAME ,EMAIL, GENDER, PHONE
+		  FROM MEMBER
+		 WHERE ID = #{id}
+		   AND PWD = #{pwd}   
+	</select>
+	
+	<select id="getMember" resultType="com.jeju.trip.vo.MemberVO" >
+		SELECT ID, PASSWORD, NAME, EMAIL, GENDER, PHONE
+		FROM MEMBER
+		WHERE ID= #{id}
+	</select>
+	
+	
+	<update id="memberUpdate">
+		UPDATE MEMBER SET
+		PASSWORD = #{password},
+		NAME = #{name},
+		EMAIL = #{email},
+		PHONE = #{phone}
+		WHERE ID = #{id}
+	</update>
+	
+	<delete id="memberDelete">
+		DELETE FROM MEMBER
+		WHERE ID = #{id}
+		
+	</delete>
+	
+	<select id="idChk" resultType="int">
+	SELECT COUNT(*) FROM MEMBER
+	WHERE ID = #{id}
+</select>
+
+<select id="getUserById" parameterType="String" resultType="com.jeju.trip.security.CustomUserDetails">
+	SELECT * FROM MEMBER WHERE ID=#{id}
+</select>
+
+<select id="memberList" resultType="com.jeju.trip.vo.MemberVO">
+	SELECT * FROM MEMBER WHERE NOT AUTH IN 'ROLE_ADMIN'
+</select>
+
+<update id="adminUpdate">
+		UPDATE MEMBER SET
+		AUTH=#{auth}
+		WHERE ID = #{id}
+	</update>
+
+
+	
+	
+</mapper>

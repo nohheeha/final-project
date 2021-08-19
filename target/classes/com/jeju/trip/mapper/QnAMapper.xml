@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.jeju.trip.mapper.QnAMapper">
+	
+	<sql id="criteria">
+				<trim prefix="(" suffix=") and">
+					<foreach collection="typeArr" item="type" separator="or">
+						<if test="type == 'T'.toString()">
+							title like '%'||#{keyword}||'%'
+						</if>
+						<if test="type == 'C'.toString()">
+							content like '%'||#{keyword}||'%'
+						</if>
+						<if test="type == 'W'.toString()">
+							id like '%'||#{keyword}||'%'
+						</if>
+					</foreach>
+				</trim>
+	</sql>
+	
+	<insert id="insertSelectKey">
+		<selectKey order="BEFORE" keyProperty="qseq" resultType="Long">
+			select q_seq.nextval from dual
+		</selectKey>
+		insert into qna (qseq, title, content, id) 
+		values (#{qseq}, #{title}, #{content}, #{id})
+	</insert>
+	
+	<select id="read" resultType="com.jeju.trip.vo.QnAVO">
+		select * from qna where qseq = #{qseq}
+	</select>
+	
+	<update id="updateCount">
+		update qna set count=count+1 where qseq = #{qseq}
+	</update>
+	
+	<delete id="delete">
+		delete from qna where qseq = #{qseq}
+	</delete>
+	
+	<update id="update">
+		update qna 
+		set title=#{title}, content=#{content}, updateDate=sysdate 
+		where qseq=#{qseq}
+	</update>
+	
+	<select id="getListWithPaging" resultType="com.jeju.trip.vo.QnAVO">
+		<![CDATA[
+			select * from
+			(
+				select /*+ INDEX_DESC(qna pk_qna) */ rownum rn, qseq, title, id, regDate, count
+				from qna
+				where 
+		]]>		
+				<include refid="criteria"></include>
+		<![CDATA[		
+				qseq > 0 and rownum > 0 and rownum <= (#{pageNum} * #{amount})
+			)
+			where rn > (#{pageNum}-1) * #{amount}
+		]]>
+	</select>
+	
+	<select id="getTotalCount" resultType="int">
+		select count(qseq) from qna 
+		where <include refid="criteria"></include>
+		qseq>0
+	</select>
+</mapper>
